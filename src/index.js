@@ -1,12 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import Home from './pages/Home';
+import Login from './pages/Login';
 import * as serviceWorker from './serviceWorker';
+
+import { getTokenFromResponse } from "./services/Spotfy";
+
+const hash = getTokenFromResponse();
+    window.location.hash = "";
+    let _token = hash.access_token;
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    {_token ? <Home token={_token} /> : <Login />}
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,6 +1,5 @@
 import React, {useEffect} from 'react';
 import clsx from 'clsx';
-import { useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -9,7 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 
 import {SPOTFY_API_BASE} from '../../constants/config';
@@ -18,9 +16,8 @@ import Filter from '../../components/Filter';
 
 import useStyles from './styles';
 
-export default function PersistentDrawerRight({token}) {
+export default function PersistentDrawerRight({token = 'BQBkfqQ-_-s215MvYankRc4wZ2shHtZjxuAD-MVgwffF4ILEu42rYXy6pJUSlDu9dZSEskhkt_g_taPjSfG8mYBdhwz2hLyfBuqWdNpmyButg3_I5X6WCFLh_Yq1l9dcCqvCovrr-tAosp8lvMwBSEEvm9Td8AtKOZI'}) {
   const classes = useStyles();
-  const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
   useEffect(() => {
@@ -88,7 +85,7 @@ export default function PersistentDrawerRight({token}) {
       >
         <div className={classes.drawerHeader}>
           <IconButton onClick={handleDrawer}>
-            {theme.direction === 'rtl' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            <ChevronRightIcon />
           </IconButton>
         </div>
         <Divider />

@@ -1,78 +1,109 @@
-import React, {useEffect} from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import clsx from 'clsx';
 import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import FilterListIcon from '@material-ui/icons/FilterList';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
 
-import {SPOTFY_API_BASE} from '../../constants/config';
+import { RootContext } from '../../context/rootContext';
 
+import { requestPlaylist } from '../../services/Api';
+import { normarlizeString } from '../../services/Helpers';
+
+import Body from '../../components/Body';
 import Filter from '../../components/Filter';
+import Header from '../../components/Header';
 
 import useStyles from './styles';
 
-export default function PersistentDrawerRight({token = 'BQBkfqQ-_-s215MvYankRc4wZ2shHtZjxuAD-MVgwffF4ILEu42rYXy6pJUSlDu9dZSEskhkt_g_taPjSfG8mYBdhwz2hLyfBuqWdNpmyButg3_I5X6WCFLh_Yq1l9dcCqvCovrr-tAosp8lvMwBSEEvm9Td8AtKOZI'}) {
+export default function Home() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+
+  const { auth } = useContext(RootContext);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [playlist, setPlaylist] = useState([]);
+  const [search, setSearch] = useState([]);
+  const [termSearched, setTermSearched] = useState('');
 
   useEffect(() => {
-    fetch(SPOTFY_API_BASE, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('========= data =========', data)
-    }, err => {
-      console.log('========= err =========', err)
+    const getPlaylist = () => {
+      requestPlaylist(auth.token).then(
+        (resp) => {
+          setPlaylist(resp?.playlists?.items);
+          setLoading(false);
+        },
+        () => {
+          setError(true);
+          setLoading(false);
+        }
+      );
+    };
+
+    getPlaylist();
+  }, [auth.token]);
+
+  const onSubmitFilter = async (form) => {
+    setLoading(true);
+
+    let queryParams = '';
+    Object.keys(form).forEach((field) => {
+      if (form[field].value) {
+        queryParams = `${queryParams}${queryParams ? '&' : ''}${field}=${
+          form[field].value
+        }`;
+      }
     });
 
-  }, [token]);
+    requestPlaylist(auth.token, queryParams ? `?${queryParams}` : '').then(
+      (resp) => {
+        setPlaylist(resp?.playlists?.items);
+        setLoading(false);
+      },
+      () => {
+        setError(true);
+        setLoading(false);
+      }
+    );
+  };
 
   const handleDrawer = () => {
     setOpen(!open);
   };
 
+  const onChangeSearch = ({ target }) => {
+    setTermSearched(target.value);
+
+    setSearch(
+      playlist.filter((item) =>
+        normarlizeString(item.name).includes(normarlizeString(target.value))
+      )
+    );
+  };
+
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
-      >
-        <Toolbar>
-          <Typography variant="h6" noWrap className={classes.title}>
-            Spotify
-          </Typography>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="end"
-            onClick={handleDrawer}
-            className={clsx(open && classes.hide)}
-          >
-            <FilterListIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      <Header onClick={handleDrawer} open={open} />
       <main
         className={clsx(classes.content, {
           [classes.contentShift]: open,
         })}
       >
         <div className={classes.drawerHeader} />
-        <Typography paragraph>
-          CONTENT
-        </Typography>
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Body
+            error={error}
+            onChangeSearch={onChangeSearch}
+            playlist={termSearched ? search : playlist}
+          />
+        )}
       </main>
       <Drawer
         className={classes.drawer}
@@ -87,9 +118,12 @@ export default function PersistentDrawerRight({token = 'BQBkfqQ-_-s215MvYankRc4w
           <IconButton onClick={handleDrawer}>
             <ChevronRightIcon />
           </IconButton>
+          <Typography variant="subtitle1" component="h2">
+            Filtrar playlist
+          </Typography>
         </div>
         <Divider />
-        <Filter />
+        <Filter onClick={onSubmitFilter} />
       </Drawer>
     </div>
   );

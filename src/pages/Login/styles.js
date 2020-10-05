@@ -1,23 +1,24 @@
 import { makeStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'grid',
-    backgroundColor: 'black',
+    backgroundColor: grey['900'],
     height: '100vh',
-    placeItems: 'center'
+    placeItems: 'center',
   },
   img: {
     height: 200,
   },
   link: {
-    color: 'white',
+    color: grey['50'],
     textDecoration: 'none',
-    padding: 20,
+    padding: theme.spacing(2, 3),
     borderRadius: 99,
     fontWeight: 800,
-    backgroundColor: '#1db954',
-  }
+    backgroundColor: theme.palette.primary.main,
+  },
 }));
 
 export default useStyles;

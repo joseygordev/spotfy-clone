@@ -1,18 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { RootProvider } from './context/rootContext';
+
 import * as serviceWorker from './serviceWorker';
 
-import { getTokenFromResponse } from "./services/Spotfy";
+import theme from './constants/theme';
 
-const hash = getTokenFromResponse();
-    window.location.hash = "";
-    let _token = hash.access_token;
+import Router from './router';
+
+import './reset.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    {_token ? <Home token={_token} /> : <Login />}
+    <ThemeProvider theme={theme}>
+      <RootProvider>
+        <Router />
+      </RootProvider>
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,27 +1,26 @@
-import {makeStyles} from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-    padding: 16,
-    flex: 1
+    backgroundColor: theme.palette.primary.main,
+    padding: theme.spacing(2),
+    flex: 1,
   },
   containerField: {
     flexDirection: 'column',
     display: 'flex',
     flex: 1,
-    marginBottom: 16,
-    padding: '8px 0',
+    marginBottom: theme.spacing(2),
   },
   containerSelect: {
-    flex: 1
+    flex: 1,
   },
   select: {
     display: 'flex',
     flex: 1,
-    marginBottom: 16,
+    marginBottom: theme.spacing(2),
   },
   button: {
     minWidth: '100%',
@@ -36,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
   errorMessage: {
     textAlign: 'center',
     fontWeight: 'bold',
-  }
+  },
 }));
 
 export default useStyles;

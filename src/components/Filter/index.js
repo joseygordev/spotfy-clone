@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -8,12 +9,13 @@ import {
   KeyboardDatePicker,
 } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+import { formatISO } from 'date-fns';
 
-import {SPOTFY_API_FILTER} from '../../constants/config';
+import { SPOTFY_API_FILTER } from '../../constants/config';
 
 import useStyles from './styles';
 
-export default function Filter() {
+const Filter = ({ onClick }) => {
   const classes = useStyles();
 
   const [filters, setFilters] = useState([]);
@@ -21,42 +23,51 @@ export default function Filter() {
   const [requestingError, setRequestingError] = useState(false);
   const [formError, setFormError] = useState(false);
   const [formChanged, setFormChanged] = useState(false);
+  const [dateSelected, setDateSelected] = useState();
 
   useEffect(() => {
     fetch(SPOTFY_API_FILTER)
-    .then(response => response.json())
-    .then(data => {
-      const formValues = {};
-      
-      data.filters.forEach((filter) => {
-        formValues[filter.id] = {
-          value: filter.id === 'timestamp' ? undefined : '',
-          error: false
-        };
-      });
+      .then((response) => response.json())
+      .then(
+        (data) => {
+          const formValues = {};
 
-      setForm(formValues);
-      setFilters(data.filters)
-    }, () => {
-      setRequestingError(true);
-    });
+          data.filters.forEach((filter) => {
+            formValues[filter.id] = {
+              value: '',
+              error: false,
+            };
+          });
+
+          setForm(formValues);
+          setFilters(data.filters);
+        },
+        () => {
+          setRequestingError(true);
+        }
+      );
   }, []);
 
   useEffect(() => {
     setFormError(Object.keys(form).some((field) => form[field].error));
-    setFormChanged(Object.keys(form).some((field) => form[field].value !== ''));
+    setFormChanged(
+      Object.keys(form).some(
+        (field) => form[field].value !== '' && form[field].value !== undefined
+      )
+    );
   }, [form]);
 
   const onChangeInput = (value, input) => {
-    const {validation} = input;
+    const { validation } = input;
 
-    const setValueInput = () => setForm({
-      ...form,
-      [input.id]: {
-        value: value,
-        error: false
-      }
-    });
+    const setValueInput = () =>
+      setForm({
+        ...form,
+        [input.id]: {
+          value: input.id === 'timestamp' ? formatISO(value) : value,
+          error: false,
+        },
+      });
 
     if (validation.min || validation.max) {
       if (value.length && (value < validation.min || value > validation.max)) {
@@ -64,16 +75,21 @@ export default function Filter() {
           ...form,
           [input.id]: {
             value: '',
-            error: true
-          }
-        })
+            error: true,
+          },
+        });
       } else {
         setValueInput();
       }
     } else {
-      setValueInput()
+      setValueInput();
     }
-  }
+  };
+
+  const onChangeDate = (date, item) => {
+    setDateSelected(date);
+    onChangeInput(date, item);
+  };
 
   const renderInput = (item) => {
     const type = item?.validation?.primitiveType;
@@ -87,13 +103,17 @@ export default function Filter() {
               type="number"
               InputLabelProps={{
                 shrink: true,
+                className: classes.floatingLabelFocusStyle,
               }}
               variant="outlined"
               error={form[item.id].error}
-              onChange={({target}) => onChangeInput(target.value, item)}
-              helperText={form[item.id].error && "Valor incorreto!"}
+              onChange={({ target }) => onChangeInput(target.value, item)}
+              helperText={form[item.id].error && 'Valor incorreto!'}
               value={form[item.id].value}
-            /> 
+              InputProps={{
+                className: classes.multilineColor,
+              }}
+            />
           </>
         ) : (
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -104,8 +124,8 @@ export default function Filter() {
               margin="normal"
               id="date-picker-inline"
               label="Data"
-              value={form[item.id].value}
-              onChange={(date) => onChangeInput(date, item)}
+              value={dateSelected}
+              onChange={(date) => onChangeDate(date, item)}
               KeyboardButtonProps={{
                 'aria-label': 'Data',
               }}
@@ -113,18 +133,18 @@ export default function Filter() {
           </MuiPickersUtilsProvider>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   const onSelect = (name, value) => {
     setForm({
       ...form,
       [name]: {
         ...form[name],
-        value
-      }
-    })
-  }
+        value,
+      },
+    });
+  };
 
   const renderSelect = (filter) => {
     return (
@@ -136,37 +156,66 @@ export default function Filter() {
           value={form[filter.id].value}
           className={classes.select}
         >
-          {filter.values.map((option) => (
-            <MenuItem onClick={() => onSelect(filter.id, option.value)} key={option.value} value={option.value}>
-              {option.name}
-            </MenuItem>
-          ))}
+          {filter.values.length &&
+            filter.values.map((option) => (
+              <MenuItem
+                onClick={() => onSelect(filter.id, option.value)}
+                key={option.value}
+                value={option.value}
+              >
+                {option.name}
+              </MenuItem>
+            ))}
         </TextField>
       </div>
-    )
-  }
+    );
+  };
 
   const renderError = () => {
     return (
       <div className={classes.containerError}>
-        <Typography className={classes.errorMessage} variant="subtitle1" component="h2">
+        <Typography
+          className={classes.errorMessage}
+          variant="subtitle1"
+          component="h2"
+        >
           Algo deu errado, tente recarregar a página!
         </Typography>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className={classes.root}>
-      <Typography variant="subtitle1" component="h2">Filtrar por:</Typography>
-      {requestingError ? renderError() : (
+      {requestingError ? (
+        renderError()
+      ) : (
         <>
-          {filters.map((filter) => filter.values ? renderSelect(filter) : renderInput(filter))}
-          <Button disabled={formError || !formChanged} className={classes.button} variant="contained" color="primary">
+          {filters.length &&
+            filters.map((filter) =>
+              filter.values ? renderSelect(filter) : renderInput(filter)
+            )}
+          <Button
+            onClick={() => onClick(form)}
+            disabled={formError || !formChanged}
+            className={classes.button}
+            variant="contained"
+            color="primary"
+          >
             Filtrar
           </Button>
         </>
       )}
     </div>
   );
-}
+};
+
+Filter.propTypes = {
+  onClick: PropTypes.func,
+};
+
+Filter.defaultProps = {
+  onClick: () => {},
+};
+
+export default Filter;

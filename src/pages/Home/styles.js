@@ -1,38 +1,19 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-const drawerWidth = 240;
+import { DRAWER_WIDTH } from '../../constants/config';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
-  },
-  appBar: {
-    backgroundColor: '#1db954',
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: drawerWidth,
-  },
-  title: {
-    flexGrow: 1,
-  },
-  hide: {
-    display: 'none',
+    minHeight: '100%',
+    height: '100%',
   },
   drawer: {
-    width: drawerWidth,
+    width: DRAWER_WIDTH,
     flexShrink: 0,
   },
   drawerPaper: {
-    width: drawerWidth,
+    width: DRAWER_WIDTH,
   },
   drawerHeader: {
     display: 'flex',
@@ -42,13 +23,16 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-start',
   },
   content: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'column',
     flexGrow: 1,
-    padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    marginRight: -drawerWidth,
+    marginRight: -DRAWER_WIDTH,
   },
   contentShift: {
     transition: theme.transitions.create('margin', {

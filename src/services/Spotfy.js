@@ -1,13 +1,13 @@
-import {SPOTFY_API_AUTH, SPOTFY_CLIENT_ID} from '../constants/config';
+import { SPOTFY_API_AUTH, SPOTFY_CLIENT_ID } from '../constants/config';
 
-const redirectUri = "http://localhost:3000/";
+const redirectUri = 'http://localhost:3000/';
 
 export const getTokenFromResponse = () => {
   return window.location.hash
     .substring(1)
-    .split("&")
+    .split('&')
     .reduce((initial, item) => {
-      var parts = item.split("=");
+      const parts = item.split('=');
       initial[parts[0]] = decodeURIComponent(parts[1]);
 
       return initial;

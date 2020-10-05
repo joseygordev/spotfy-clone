@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-import { accessUrl } from "../../services/Spotfy";
+import { accessUrl } from '../../services/Spotfy';
 
 import useStyles from './styles';
 
@@ -14,9 +14,11 @@ const Login = () => {
         src="https://getheavy.com/wp-content/uploads/2019/12/spotify2019-830x350.jpg"
         alt=""
       />
-      <a className={classes.link} href={accessUrl}>LOGIN TO SPOTIFY</a>
+      <a className={classes.link} href={accessUrl}>
+        LOGIN
+      </a>
     </div>
   );
-}
+};
 
 export default Login;
